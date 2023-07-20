@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>R&M Marathon</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+		:root {
+			--main-color: #FFB7C2;
+			--second-color: #FE889F;
+			--text-main-color: #333333;
+			--text-accent-color: #FFFFFF;
+			--base-padding: 20px 30px;
+			--results-height: 200px;
+		}
+		html {
+			background-color: var(--main-color);
+			color: var(--text-main-color);
+			font-family: 'Poppins', sans-serif;
+			background-color: var(--text-accent-color);
+		}
+
+
+		.wrapper {
+			margin: 5px auto;
+			min-height: calc(100vh - 10px);
+			width: 375px;
+			background-color: var(--main-color);
+			position: relative;
+		}
+		header {
+			padding: var(--base-padding);
+		}
+		header h1 {
+			font-size: 2.5em;
+			letter-spacing: 4px;
+			line-height: 110%;
+			text-transform: uppercase;
+			text-align: center;
+			color: var(--text-accent-color);
+		}
+		header h2 {
+			margin-top: 40px;
+			color: var(--text-main-color);
+			text-align: center;
+			font-size: 3em;
+			text-decoration: underline;
+		}
+		header h3 {
+			font-weight: 200;
+			text-align: center;
+		}
+		.working-zone {
+			padding: var(--base-padding);
+		}
+		.working-zone h2 {
+			font-weight: 300;
+			letter-spacing: 2px;
+			margin-bottom: 5px;
+		}
+		.working-zone .working-zone__days {
+			display: grid;
+			grid-template-columns: repeat(7, 1fr);
+			gap: 10px;
+			margin-bottom: 20px;
+		}
+		.working-zone .working-zone__days .day {
+			border: 3px solid var(--second-color);
+			text-align: center;
+			color: var(--text-main-color);
+			text-decoration: none;
+			border-radius: 3px;
+		}
+
+		.results {
+			padding: var(--base-padding);
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+		}
+		.results h2 {
+			width: 100%;
+			text-align: center;
+			font-weight: 300;
+			letter-spacing: 2px;
+		}
+		.results h3 {
+			width: 100%;
+			text-align: center;
+			font-weight: 300;
+			letter-spacing: 2px;
+		}
+		.results__item {
+			position: relative;
+			width: 90px;
+			height: var(--results-height);
+			border: 2px solid var(--second-color);
+			background: linear-gradient(0deg, #e8838e, #f0a3fc);
+		}
+		.results__item-fill {
+			position: absolute;
+			top: 0;
+			width: 100%;
+			height: 200px;
+			background-color: var(--main-color);
+			border-bottom: 1px solid var(--second-color);
+			transition: 3s;
+		}
+		.down-footer {
+			width: 100%;
+			height: 40px;
+		}
+		footer {
+			position: absolute;
+			bottom: 0;
+			height: 40px;
+			background-color: var(--text-main-color);
+			width: 100%;
+			text-align: center;
+			color: var(--text-accent-color);
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			letter-spacing: 3px;
+			font-weight: 200;
+		}
+		.popup-background {
+			display: block;
+			pointer-events: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 999;
+			width: 100%;
+			height: 100%;
+			opacity: 0;
+			background-color: rgba(0, 0, 0, 0.4);
+		}
+		.day-popup {
+			display: flex;
+			pointer-events: none;
+			opacity: 0;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1000;
+			background-color: var(--main-color);
+			padding: 30px 20px;
+			flex-direction: column;
+			justify-content: center;
+			transition: 0.5s;
+		}
+		.day-popup .close-popup{
+			position: absolute;
+			cursor: pointer;
+			top: 3px;
+			right: 3px;
+			display: block;
+			width: 40px;
+			height: 40px;
+			transition: .3s;
+		}
+		.day-popup .close-popup:hover > *{
+			background-color: var(--text-accent-color);
+		}
+		.day-popup .close-popup::after{
+			content: '';
+			display: block;
+			width: 40px;
+			height: 4px;
+			border-radius: 2px;
+			background-color: var(--text-main-color);
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) rotate(45deg);
+		}
+		.day-popup .close-popup::before{
+			content: '';
+			display: block;
+			width: 40px;
+			height: 4px;
+			border-radius: 2px;
+			background-color: var(--text-main-color);
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%) rotate(-45deg);
+		}
+		.day-popup h2 {
+			text-align: center;
+			margin-bottom: 10px;
+			font-weight: 400;
+			letter-spacing: 2px;
+		}
+		.day-popup form {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+		.form-elemts-wrapper {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+		.day-popup input {
+			width: 100px;
+			margin-left: 20px;
+			border: 1px solid var(--text-main-color);
+			border-radius: 3px;
+			outline: none;
+			text-align: center;
+			font-size: 1.5em;
+			color: var(--text-main-color);
+		}
+		.day-popup button {
+			text-align: center;
+			display: flex;
+			width: fit-content;
+			padding: 10px 15px;
+			margin-top: 10px;
+			background-color: var(--main-color);
+			border-radius: 30px;
+			color: #333333;
+			text-transform: uppercase;
+			letter-spacing: 2px;
+			font-size: 1.3em;
+			border: 2px solid var(--text-main-color);
+			transition: .3s ease-in-out;
+		}
+		.day-popup button:hover {
+			background-color: var(--second-color);
+			color: var(--text-accent-color);
+		}
+		.info-menu {
+					position: fixed;
+					top: 0;
+					width: 375px;
+					display: flex;
+					z-index: 998;
+					opacity: .8;
+					transition: .5s;
+				}
+				.info-menu .opener {
+					background-color: #FFFFFF;
+					width: 80px;
+					height: 80px;
+					border-top-left-radius: 40px;
+					border-bottom-left-radius: 40px;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+				}
+				.info-menu .opener .burger-menu{
+					position: relative;
+					width: 40px;
+					height: 40px;
+				}
+				.info-menu .opener .burger-menu .line1 {
+					display: block;
+					width: 40px;
+					height: 4px;
+					background-color: var(--text-main-color);
+					border-radius: 2px;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-40%, -10px);
+					transition: .5s;
+				}
+				.info-menu .opener .burger-menu .line2 {
+					display: block;
+					width: 40px;
+					height: 4px;
+					background-color: var(--text-main-color);
+					border-radius: 2px;
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					transform: translate(-40%, 0%);
+					box-shadow: 0px 10px var(--text-main-color);
+					transition: .5s;
+				}
+				.info-menu .content{
+					width: 295px;
+					background-color: #FFFFFF;
+					min-height: 100vh;
+				}
+				.info-menu .content h2 {
+					text-align: center;
+					margin-top: 40px;
+					letter-spacing: .5em;
+					font-weight: 300;
+				}
+				.info-menu .content p{
+					width: 80%;
+					margin: 10%;
+					text-align: center;
+				}
+				.info-menu .content ul{
+					width: 80%;
+					margin: 10%;
+					text-decoration: none;
+					list-style-type: none;
+					text-align: center;
+				}
+	</style>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+	<div class="popup-background" onclick="closePopup()"></div>
+	<div class="day-popup" id="popup">
+		<div class="close-popup" onclick="closePopup()"></div>
+		<h2 id="popup-h2">Margo. Day №3</h2>
+		<form action="." id="popup-form" method="POST">
+			{% csrf_token %}
+			<div class="form-elemts-wrapper">
+				<label for="day-input-popup">Write current page:</label>
+				<input type="number" name="day" id="day-input-popup">
+			</div>
+			<button type="submit">Save</button>
+		</form>
+	</div>
+	<div class="wrapper">
+		<div class="info-menu" id="menu-popup" style="right: -295px;">
+			<div class="opener" onclick="toggleMenu()">
+				<div class="burger-menu">
+					<div class="line1" id="menu-line1"></div>
+					<div class="line2" id="menu-line2"></div>
+				</div>
+			</div>
+			<div class="content">
+				<h2>MENU</h2>
+				<p>This is special site for Roma's and Margo's marathon of readiing the book "The Fateful Adventures of the Good Soldier Švejk" by Jaroslav Hašek. You can download it or read it online folloцing next links:</p>
+				<ul>
+					<li>UKR version: <a href="https://drive.google.com/file/d/1bWc0Cg7H0Zf0z3r9TdUmmHjdU0QY1klw/view?usp=sharing">link</a></li>
+					<li>RU version: <a href="https://drive.google.com/file/d/1I0gO99qB6WmlluvBLIjI0Ie5tQtbiveY/view?usp=sharing">link</a></li>
+					<li>ONLINE version: <a href="http://loveread.ec/read_book.php?id=2342&p=1">link</a></li>
+				</ul>
+				<p>Date of start is <b>{{ dateOfStart }}</b></p>
+			</div>
+		</div>
+		<header>
+			<h1>Book marathon</h1>
+			{% if winner %}
+				<h2>{{ winner }}</h2>
+			{% endif %}
+			<h3>(Current day is <span id="current-day"></span>)</h3>
+		</header>
+		<section class="working-zone">
+			<h2>Margo</h2>
+			<div class="working-zone__days">
+				<a class="day dayM" href="#" onclick="openDayPopup(1, 1)" id="day-1-1">1</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(2, 1)" id="day-2-1">2</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(3, 1)" id="day-3-1">3</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(4, 1)" id="day-4-1">4</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(5, 1)" id="day-5-1">5</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(6, 1)" id="day-6-1">6</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(7, 1)" id="day-7-1">7</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(8, 1)" id="day-8-1">8</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(9, 1)" id="day-9-1">9</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(10, 1)" id="day-10-1">10</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(11, 1)" id="day-11-1">11</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(12, 1)" id="day-12-1">12</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(13, 1)" id="day-13-1">13</a>
+				<a class="day dayM" href="#" onclick="openDayPopup(14, 1)" id="day-14-1">14</a>
+			</div>
+			<h2>Roma</h2>
+			<div class="working-zone__days">
+				<a class="day dayR" href="#" onclick="openDayPopup(1, 0)" id="day-1-0">1</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(2, 0)" id="day-2-0">2</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(3, 0)" id="day-3-0">3</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(4, 0)" id="day-4-0">4</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(5, 0)" id="day-5-0">5</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(6, 0)" id="day-6-0">6</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(7, 0)" id="day-7-0">7</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(8, 0)" id="day-8-0">8</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(9, 0)" id="day-9-0">9</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(10, 0)" id="day-10-0">10</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(11, 0)" id="day-11-0">11</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(12, 0)" id="day-12-0">12</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(13, 0)" id="day-13-0">13</a>
+				<a class="day dayR" href="#" onclick="openDayPopup(14, 0)" id="day-14-0">14</a>
+			</div>
+		</section>
+		<section class="results">
+			<div class="results__wrapper">
+				<div class="results__item">
+					<div class="results__item-fill" id="margo-fill" style="height: 200px;"></div>
+				</div>
+				<h2>Margo</h2>
+				<h3>({{ MargoPercent }})</h3>
+			</div>
+			<div class="results__wrapper">
+				<div class="results__item">
+					<div class="results__item-fill" id="roma-fill" style="height: 200px;"></div>
+				</div>
+				<h2>Roma</h2>
+				<h3>({{ RomaPercent }})</h3>
+			</div>
+		</section>
+		<div class="down-footer"></div>
+		<footer>
+			M & R
+		</footer>
+	</div>
+</body>
+<script>
+	let MargoDays = {{ MargoDays }};
+	let RomasDays = {{ RomaDays }};
+	let startDateClass = new Date('{{ dateOfStart }}');
+	let currentDate = new Date();
+
+	function openDayPopup(day, person){
+		let popup = document.getElementById('popup');
+		let background = document.getElementsByClassName('popup-background')[0];
+		let headText = document.getElementById('popup-h2');
+		let personName = person ? 'Margo' : 'Roma';
+		let inputPage = document.getElementById('day-input-popup');
+		let form = document.getElementById('popup-form');
+		popup.style.opacity = '1';
+		popup.style.pointerEvents = 'auto';
+		background.style.opacity = '1';
+		background.style.pointerEvents = 'auto';
+		headText.innerHTML = `${personName}. Day №${day}`;
+		inputPage.setAttribute('name', `day${day}`);
+		inputPage.value = person ? MargoDays[day - 1] : RomasDays[day - 1];
+		form.setAttribute('action', `/${personName}/`);
+	}
+
+	function closePopup(){
+		let popup = document.getElementById('popup');
+		let background = document.getElementsByClassName('popup-background')[0];
+		popup.style.opacity = '0';
+		popup.style.pointerEvents = 'none';
+		background.style.opacity = '0';
+		background.style.pointerEvents = 'none';
+	}
+
+	function toggleMenu(){
+		let menu = document.getElementById('menu-popup');
+		let line1 = document.getElementById('menu-line1');
+		let line2 = document.getElementById('menu-line2');
+		if (menu.style.right == '0px'){
+			menu.style.right = '-295px';
+			line1.style.transform = 'translate(-40%, -10px)';
+			line2.style.transform = 'translate(-40%, 0px)';
+			line2.style.boxShadow = '0px 10px var(--text-main-color)'
+		} 
+		else {
+			menu.style.right = '0px'
+			line1.style.transform = 'translate(-40%, 0px) rotate(-45deg)';
+			line2.style.transform = 'translate(-40%, 0px) rotate(45deg)';
+			line2.style.boxShadow = '0px 0px var(--text-main-color)';
+		}
+	}
+
+	let daysR = document.getElementsByClassName('dayR');
+	let daysM = document.getElementsByClassName('dayM');
+
+	for (let i = 0; i <= 13; i++) {
+		if (RomasDays[i] != 0) daysR[i].style.backgroundColor = 'var(--second-color)';
+		if (MargoDays[i] != 0) daysM[i].style.backgroundColor = 'var(--second-color)';
+	}
+
+	let currentDay = Math.ceil((currentDate - startDateClass) / (1000 * 60 * 60 * 24));
+	if (currentDay > 14){
+		currentDay = '14+';
+	}
+	document.getElementById('current-day').innerHTML = currentDay;
+
+	setTimeout(() => {
+		document.getElementById('margo-fill').style.height = {{ MargoResultsHeight }} + 'px';
+		document.getElementById('roma-fill').style.height = {{ RomaResultsHeight }} + 'px';
+	}, 500);
+</script>
+</html>
